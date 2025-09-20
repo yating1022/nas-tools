@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libxslt-dev \
     gcc \
+    unzip \  # 添加unzip工具用于rclone安装
     && rm -rf /var/lib/apt/lists/*
 
 # 设置时区
