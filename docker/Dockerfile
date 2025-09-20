@@ -1,30 +1,18 @@
-FROM alpine
+FROM python:3.11-slim
 
 # 设置时区环境变量
 ENV TZ="Asia/Shanghai"
 
-# 安装基础依赖和编译工具
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    python3-dev \
-    gcc \
-    g++ \
-    musl-dev \
-    libffi-dev \
+# 安装系统依赖
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     npm \
     git \
-    # 安装lxml依赖
     libxml2-dev \
     libxslt-dev \
-    # 安装其他可能需要的依赖
-    make \
-    && ln -sf /usr/bin/python3 /usr/bin/python
-
-# 下载并安装系统依赖包
-RUN apk add --no-cache $(echo $(wget --no-check-certificate -qO- https://raw.githubusercontent.com/felix-ls/nas-tools/master/package_list.txt))
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 # 设置时区
 RUN ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
@@ -45,17 +33,11 @@ ENV PATH="/app/venv/bin:$PATH"
 # 升级pip并安装Python依赖
 RUN pip install --upgrade pip setuptools wheel \
     && pip install cython \
-    # 先单独安装有问题的包
-    && pip install greenlet \
-    && pip install lxml \
-    && pip install ruamel.yaml.clib \
-    # 然后安装其余依赖
     && pip install -r https://raw.githubusercontent.com/felix-ls/nas-tools/master/requirements.txt
 
 # 清理
-RUN apk del libffi-dev python3-dev gcc g++ musl-dev libxml2-dev libxslt-dev make \
-    && npm install pm2 -g \
-    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
+RUN npm install pm2 -g \
+    && rm -rf /tmp/* /root/.cache
 
 # 设置环境变量
 ENV LANG="C.UTF-8" \
@@ -66,7 +48,6 @@ ENV LANG="C.UTF-8" \
     PS1="\u@\h:\w \$ " \
     REPO_URL="https://github.com/felix-ls/nas-tools.git" \
     PYPI_MIRROR="https://pypi.tuna.tsinghua.edu.cn/simple" \
-    ALPINE_MIRROR="mirrors.ustc.edu.cn" \
     PUID=0 \
     PGID=0 \
     UMASK=000 \
