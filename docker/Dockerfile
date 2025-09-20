@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libxslt-dev \
     gcc \
-    unzip \ 
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # 设置时区
@@ -57,7 +57,8 @@ ENV LANG="C.UTF-8" \
 WORKDIR ${WORKDIR}
 
 RUN python_ver=$(python3 -V | awk '{print $2}') \
-    && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
+    # 在虚拟环境中创建pth文件，而不是系统级目录
+    && echo "${WORKDIR}/" > /app/venv/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
     && echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf \
     && echo 'fs.inotify.max_user_instances=524288' >> /etc/sysctl.conf \
     && git config --global pull.ff only \
