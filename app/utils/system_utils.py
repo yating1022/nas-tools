@@ -195,7 +195,7 @@ class SystemUtils:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
             retcode = subprocess.run(['rclone', 'moveto',
-                                      src,
+                                      f'NASTOOL:{src}',
                                       f'NASTOOL:{dest}'],
                                      startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
@@ -212,7 +212,7 @@ class SystemUtils:
             src = os.path.normpath(src)
             dest = dest.replace("\\", "/")
             retcode = subprocess.run(['rclone', 'copyto',
-                                      src,
+                                      f'NASTOOL:{src}',
                                       f'NASTOOL:{dest}'],
                                      startupinfo=SystemUtils.__get_hidden_shell()).returncode
             return retcode, ""
