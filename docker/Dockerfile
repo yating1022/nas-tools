@@ -3,18 +3,24 @@ FROM alpine
 # 设置时区环境变量
 ENV TZ="Asia/Shanghai"
 
-# 安装基础依赖
+# 安装基础依赖和编译工具
 RUN apk add --no-cache \
     python3 \
     py3-pip \
     python3-dev \
     gcc \
+    g++ \
     musl-dev \
     libffi-dev \
     wget \
     curl \
     npm \
     git \
+    # 安装lxml依赖
+    libxml2-dev \
+    libxslt-dev \
+    # 安装其他可能需要的依赖
+    make \
     && ln -sf /usr/bin/python3 /usr/bin/python
 
 # 下载并安装系统依赖包
@@ -39,10 +45,15 @@ ENV PATH="/app/venv/bin:$PATH"
 # 升级pip并安装Python依赖
 RUN pip install --upgrade pip setuptools wheel \
     && pip install cython \
+    # 先单独安装有问题的包
+    && pip install greenlet \
+    && pip install lxml \
+    && pip install ruamel.yaml.clib \
+    # 然后安装其余依赖
     && pip install -r https://raw.githubusercontent.com/felix-ls/nas-tools/master/requirements.txt
 
 # 清理
-RUN apk del libffi-dev python3-dev gcc musl-dev \
+RUN apk del libffi-dev python3-dev gcc g++ musl-dev libxml2-dev libxslt-dev make \
     && npm install pm2 -g \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 
